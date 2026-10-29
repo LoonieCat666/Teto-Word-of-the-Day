@@ -2,18 +2,8 @@ const { fetchWord, todayIn } = require("../lib/wotd");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-
-  let date;
   try {
-    date = todayIn(req.query.tz || "UTC");
-  } catch {
-    return res
-      .status(400)
-      .json({ error: "invalid timezone, e.g. ?tz=Europe/Zurich" });
-  }
-
-  try {
-    const word = await fetchWord(date);
+    const word = await fetchWord(todayIn());
     res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate");
     res.status(200).json(word);
   } catch (e) {

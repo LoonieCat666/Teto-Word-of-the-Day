@@ -116,7 +116,6 @@
       <h2>Use the API</h2>
       <p>Free to use, no key needed.</p>
       <pre>GET /v1/today
-GET /v1/today?tz=Europe/Zurich
 GET /v1/date/2026-10-29</pre>
       <p>Each call returns JSON with the word, definitions and examples.</p>
     </section>
@@ -137,9 +136,8 @@ GET /v1/date/2026-10-29</pre>
     };
     const show = () => requestAnimationFrame(() => $("card").classList.add("in"));
 
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    fetch("/v1/today?tz=" + encodeURIComponent(tz))
+    fetch("/v1/today")
       .then((r) => {
         if (!r.ok) throw new Error("bad response");
         return r.json();
