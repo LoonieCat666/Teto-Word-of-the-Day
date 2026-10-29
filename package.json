@@ -1,0 +1,7 @@
+{
+  "name": "teto-wotd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Teto Word of the Day: a small website and API",
+  "engines": { "node": ">=18" }
+}

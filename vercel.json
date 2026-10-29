@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/v1/today", "destination": "/api/today" },
+    { "source": "/v1/date/:date", "destination": "/api/date/:date" }
+  ]
+}

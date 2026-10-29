@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teto Word of the Day</title>
+  <meta name="description" content="A new word every day, with definitions and examples.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #fff4f5;
+      --ink: #2b1017;
+      --muted: #7a4a55;
+      --red: #d4203f;
+      --on-red: #ffffff;
+      --rule: #f0c6cd;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #1c0b10;
+        --ink: #fbe7ea;
+        --muted: #c79aa4;
+        --red: #ff4d6a;
+        --on-red: #1c0b10;
+        --rule: #4a2029;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 1.0625rem/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+      padding: max(1.5rem, env(safe-area-inset-top)) 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    }
+
+    main {
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: clamp(2rem, 10vh, 6rem) 0 3rem;
+    }
+
+    /* The word is set like a video subtitle: a solid bar behind the type. */
+    .word {
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.75rem, 13vw, 6.5rem);
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      margin: 0 0 1.25rem;
+      overflow-wrap: anywhere;
+    }
+    .word span {
+      background: var(--red);
+      color: var(--on-red);
+      padding: 0.02em 0.16em 0.08em;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+
+    .date { color: var(--muted); margin: 0 0 2.5rem; }
+
+    .defs p { margin: 0 0 1rem; max-width: 34rem; }
+    .pos { font-style: italic; color: var(--muted); margin-right: 0.35em; }
+
+    .examples blockquote {
+      margin: 0 0 1rem;
+      padding-left: 1rem;
+      border-left: 3px solid var(--red);
+      max-width: 34rem;
+    }
+
+    .error { color: var(--muted); }
+
+    .reveal { opacity: 0; transform: translateY(0.5rem); }
+    .reveal.in { opacity: 1; transform: none; transition: opacity 0.5s ease, transform 0.5s ease; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal.in { opacity: 1; transform: none; transition: none; }
+    }
+
+    .api {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--rule);
+    }
+    .api h2 { font-size: 1.125rem; margin: 0 0 0.5rem; }
+    .api p { margin: 0 0 0.75rem; color: var(--muted); }
+    pre {
+      margin: 0 0 1rem;
+      padding: 0.75rem 1rem;
+      overflow-x: auto;
+      background: var(--rule);
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    a { color: var(--red); }
+    a:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+    footer { margin-top: 2rem; font-size: 0.9rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="card" class="reveal">
+      <h1 class="word" id="word"><span>…</span></h1>
+      <p class="date" id="date"></p>
+      <div class="defs" id="defs"></div>
+      <div class="examples" id="examples"></div>
+    </div>
+
+    <section class="api">
+      <h2>Use the API</h2>
+      <p>Free to use, no key needed.</p>
+      <pre>GET /v1/today
+GET /v1/today?tz=Europe/Zurich
+GET /v1/date/2026-10-29</pre>
+      <p>Each call returns JSON with the word, definitions and examples.</p>
+    </section>
+
+    <footer>Words and definitions from <a href="https://www.wordnik.com/">Wordnik</a>.</footer>
+  </main>
+
+  <noscript><p style="text-align:center">This page needs JavaScript to load today's word.</p></noscript>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const add = (parent, tag, text, cls) => {
+      const el = document.createElement(tag);
+      el.textContent = text;
+      if (cls) el.className = cls;
+      parent.appendChild(el);
+      return el;
+    };
+    const show = () => requestAnimationFrame(() => $("card").classList.add("in"));
+
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    fetch("/v1/today?tz=" + encodeURIComponent(tz))
+      .then((r) => {
+        if (!r.ok) throw new Error("bad response");
+        return r.json();
+      })
+      .then((d) => {
+        $("word").firstElementChild.textContent = d.word;
+        document.title = d.word + " | Teto Word of the Day";
+        $("date").textContent = new Date(d.date + "T12:00:00").toLocaleDateString(undefined, {
+          weekday: "long", day: "numeric", month: "long", year: "numeric",
+        });
+
+        d.definitions.forEach((x) => {
+          const p = document.createElement("p");
+          if (x.partOfSpeech) add(p, "span", x.partOfSpeech, "pos");
+          add(p, "span", x.text);
+          $("defs").appendChild(p);
+        });
+        d.examples.forEach((t) => add($("examples"), "blockquote", t));
+        show();
+      })
+      .catch(() => {
+        $("word").firstElementChild.textContent = "No word yet";
+        add($("defs"), "p", "Couldn't load today's word. Try again in a few minutes.", "error");
+        show();
+      });
+  </script>
+</body>
+</html>
