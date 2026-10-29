@@ -18,6 +18,6 @@ module.exports = async (req, res) => {
     res.status(200).json(word);
   } catch (e) {
     console.error(e);
-    res.status(502).json({ error: "could not fetch the word" });
+    res.status(502).json({ error: "could not fetch the word", detail: e.message });
   }
 };
