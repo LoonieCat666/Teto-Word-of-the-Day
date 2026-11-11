@@ -1,6 +1,10 @@
 {
+  "functions": {
+    "api/voice/[date].js": { "maxDuration": 30 }
+  },
   "rewrites": [
     { "source": "/v1/today", "destination": "/api/today" },
-    { "source": "/v1/date/:date", "destination": "/api/date/:date" }
+    { "source": "/v1/date/:date", "destination": "/api/date/:date" },
+    { "source": "/v1/voice/:date", "destination": "/api/voice/:date" }
   ]
 }

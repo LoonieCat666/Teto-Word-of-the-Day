@@ -4,7 +4,9 @@ module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   try {
     const word = await fetchWord(todayIn());
-    res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate");
+    // Cache until midnight UTC, when the next word starts.
+    const secs = 86400 - Math.floor((Date.now() / 1000) % 86400);
+    res.setHeader("Cache-Control", `s-maxage=${secs}, stale-while-revalidate`);
     res.status(200).json(word);
   } catch (e) {
     console.error(e);
