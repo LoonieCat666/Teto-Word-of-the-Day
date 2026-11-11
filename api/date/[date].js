@@ -1,4 +1,4 @@
-const { fetchWord } = require("../../lib/wotd");
+const { fetchWord, voiceUrl } = require("../../lib/wotd");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
   try {
     const word = await fetchWord(date);
     res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate");
-    res.status(200).json(word);
+    res.status(200).json({ ...word, voice: voiceUrl(req, date) });
   } catch (e) {
     console.error(e);
     res.status(502).json({ error: "could not fetch the word", detail: e.message });

@@ -24,13 +24,13 @@ module.exports = async (req, res) => {
     const r = await fetch("https://api.fish.audio/v1/tts", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.FISH_API_KEY}`,
+        Authorization: `Bearer ${process.env.FISH_API_KEY.trim()}`,
         "Content-Type": "application/json",
         model: "s2.1-pro-free",
       },
       body: JSON.stringify({
         text,
-        reference_id: process.env.FISH_VOICE_ID,
+        reference_id: process.env.FISH_VOICE_ID.trim(),
         format: "mp3",
       }),
     });
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
 
     const audio = Buffer.from(await r.arrayBuffer());
     res.setHeader("Content-Type", "audio/mpeg");
-    res.setHeader("Cache-Control", "public, s-maxage=604800");
+    res.setHeader("Cache-Control", "public, s-maxage=86400");
     res.status(200).send(audio);
   } catch (e) {
     console.error(e);
